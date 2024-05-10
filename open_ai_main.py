@@ -39,8 +39,6 @@ def connect_database(creds):
     return connection, engine
 
 
-
-
 def get_open_ai_response(url, prompt, headers):
     
     # Create a data payload
@@ -100,7 +98,7 @@ try:
                 chapter, 
                 verse_number 
             from 
-                vid001.public.video_input_source 
+                video.input 
             where
                 description is null
             order by 
@@ -113,14 +111,11 @@ try:
     update_data = []
     count = 0
 
-
     while (count < video_count):
-
         df = pd.read_sql(query,con=conn)
         update_data = []
 
         for i in range(len(df)):
-
             actual_values = {
                                 'book_name' : df.iloc[i]['book_name'], 
                                 'verse_number' : df.iloc[i]['verse_number'], 
@@ -176,7 +171,7 @@ try:
                 # Perform the bulk update using an UPDATE query with a JOIN
                 update_query = """
                     UPDATE 
-                        video_input_source m
+                        video.input m
                     SET 
                         description = t.description, 
                         tags = t.tags
