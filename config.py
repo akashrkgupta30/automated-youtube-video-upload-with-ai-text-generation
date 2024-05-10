@@ -1,0 +1,17 @@
+host = "host_url"
+port = 5432
+username = "username"
+password = "password"
+database = "database_name"
+ssh_host = "ssh_host"
+ssh_username = 'ubuntu'
+ssh_key_path = ".pem path"
+aws_access_key_id = "key_id"
+aws_secret_access_key = "access_key"
+bucket_name = "bucket_name"
+key = "youtube_videos/"
+output_video_path = "/home/ubuntu/generate_video/output_videos/"
+input_video_path = "/home/ubuntu/generate_video/input_videos/"
+youtube_token_path = "/home/ubuntu/generate_video/creds/youtube_token.json"
+video_count = 50
+video_config_path = "/home/ubuntu/generate_video/script/video_config.json"
