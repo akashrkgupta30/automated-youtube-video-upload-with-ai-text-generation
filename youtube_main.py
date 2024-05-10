@@ -106,7 +106,7 @@ try:
 			Select
 				*
 			    from
-			    	vid001.public.load_channel
+			    	video.load
 			    where
 			    	upload_status in ('NOT_UPLOADED','FAILED')
 				and upload_retry_count < 3
@@ -121,7 +121,7 @@ try:
 			inp.description description,
 			inp.tags tags
 		from
-			vid001.public.video_input_source inp
+			video.input inp
 		join
 			load_videos load
 		on
@@ -196,7 +196,7 @@ try:
                 print(f'{file_name} uploaded successfully! ID: {video_id}')    
 
                 update_load_channel_query = f'''
-                                                update vid001.public.load_channel
+                                                update video.load
                                                 set 
                                                     upload_status = 'UPLOADED' ,
                                                     upload_success_date = '{datetime.datetime.now()}'
@@ -210,7 +210,7 @@ try:
                 print('Video Upload Failed ', reason)
                 
                 update_load_channel_query = f'''
-                                            update vid001.public.load_channel
+                                            update video.load
                                             set 
                                                 upload_status = 'FAILED' ,
                                                 upload_error = '{reason}',
@@ -227,7 +227,7 @@ try:
             else:
                 reason = "Download Failed to Local - Unknown Reason"
             update_load_channel_query = f'''
-                                        update vid001.public.load_channel
+                                        update video.load
                                         set 
                                             upload_status = 'FAILED' ,
                                             upload_error = '{reason}',
