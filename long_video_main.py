@@ -84,8 +84,8 @@ try:
     key = config.key
     print("AWS Session created")
     
-    object_url = '<s3 bucket path>' + '/Input/Movie/long/'
-    video_name = ['desert_long.mp4','sun_long.mp4','land_long.mp4','tree_long.mp4','water_long.mp4']
+    object_url = '<s3 bucket path>' + '/Input/'
+    video_name = ['sunflower.mp4','river.mp4','mountain.mp4']
     
     input_videos = [ object_url + video for video in video_name]
                              
@@ -94,7 +94,7 @@ try:
         #Query to fetch 50 records
         query = '''
                 Select * 
-                from vid001.public.video_input_source 
+                from video.input 
                 where creation_status in ('NOT_CREATED','FAILED')
                       and retry_count < 3
                 order by id 
@@ -124,7 +124,7 @@ try:
         update_ids = "','".join(li)
 
         update_query = f'''
-                            update vid001.public.video_input_source
+                            update video.input
                             set creation_status = 'IN_PROGRESS' 
                             where id in ('{update_ids}');
         '''
@@ -305,7 +305,7 @@ try:
                         print("New Record Inserted to Load Table")
                         
                         update_input_source_query = f'''
-                                                        update vid001.public.video_input_source
+                                                        update video.input
                                                         set 
                                                             creation_status = 'CREATED' ,
                                                             creation_date = '{datetime.datetime.now()}',
@@ -329,7 +329,7 @@ try:
                         cleaned_s3_error = "Error while uploading to S3 or inserting or updating tables - " + cleaned_s3_error
                         print(s3_error)
                         update_input_source_query = f'''
-                                                update vid001.public.video_input_source
+                                                update video.input
                                                 set 
                                                     creation_status = 'FAILED',
                                                     retry_count = retry_count + 1,
@@ -344,7 +344,7 @@ try:
                     cleaned_error = re.sub(r'[^a-zA-Z0-9\s]', '-', error_description)
                     
                     update_input_source_query = f'''
-                                                update vid001.public.video_input_source
+                                                update video.input
                                                 set 
                                                     creation_status = 'FAILED',
                                                     retry_count = retry_count + 1,
@@ -362,7 +362,7 @@ try:
                     reupdate_ids = li[i+1:]
                     if len(reupdate_ids) > 0:
                         update_query = f'''
-                                        update vid001.public.video_input_source
+                                        update video.input
                                         set creation_status = 'NOT_CREATED' 
                                         where id in ('{"','".join(reupdate_ids)}');
                                     '''
@@ -377,7 +377,7 @@ try:
                 cleaned_for_loop_error = "Error Occured while Video Processing in FOR loop - " + cleaned_for_loop_error                      
                 print(cleaned_for_loop_error)
                 update_input_source_query = f'''
-                                                update vid001.public.video_input_source
+                                                update video.input
                                                 set 
                                                     creation_status = 'FAILED',
                                                     retry_count = retry_count + 1,
