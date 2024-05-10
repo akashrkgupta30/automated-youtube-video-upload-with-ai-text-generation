@@ -72,8 +72,8 @@ try:
     key = config.key
     print("AWS Session created")
     
-    object_url = '<s3 bucket path>' + '/Input/Movie/short/'
-    video_name = ['desert+Short.mp4','sun+Short.mp4','flower+Short.mp4','sky+Short.mp4','water+Short.mp4']
+    object_url = '<s3 bucket path>' + '/Input/short/'
+    video_name = ['desert.mp4','sun.mp4','flower.mp4']
     
     input_videos = [ object_url + video for video in video_name]
                          
@@ -82,7 +82,7 @@ try:
         #Query to fetch 50 records
         query = '''
                 Select * 
-                from vid001.public.video_input_source 
+                from video.input 
                 where creation_status in ('NOT_CREATED','FAILED')
                       and retry_count < 3
                 order by id 
@@ -112,7 +112,7 @@ try:
         update_ids = "','".join(li)
 
         update_query = f'''
-                            update vid001.public.video_input_source
+                            update video.input
                             set creation_status = 'IN_PROGRESS' 
                             where id in ('{update_ids}');
         '''
@@ -152,11 +152,8 @@ try:
         verse_sub_shadowy = verse_sub_config_path['settings']['shadowy']
         verse_sub_x_pos = verse_sub_config_path['x']
         verse_sub_y_pos = verse_sub_config_path['y']
-
         resolution = video_config['width'] + '*' + video_config['height']
-
         print("Video Config Params Initialised")
-
 
         #Generating output video for each input video 
         print("Start Generating Output Video-", datetime.datetime.now())
@@ -251,7 +248,7 @@ try:
                         
                         s3_video_path = "s3://" + bucket_name + "/" + key + "short/" + output_file_name
                         insert_load_channel_query = f'''
-                                                        insert into vid001.public.load_channel (id,upload_planned_date,channel,s3_upload_video_path, upload_status)
+                                                        insert into video.load (id,upload_planned_date,channel,s3_upload_video_path, upload_status)
                                                         values ('{random_id}', '{current_date}', 'YouTube', '{s3_video_path}', 'NOT_UPLOADED')                                        
                                                     '''
                         cursor.execute(insert_load_channel_query)
@@ -259,7 +256,7 @@ try:
                         print("New Record Inserted to Load Table")
                         
                         update_input_source_query = f'''
-                                                        update vid001.public.video_input_source
+                                                        update video.input
                                                         set 
                                                             creation_status = 'CREATED' ,
                                                             creation_date = '{datetime.datetime.now()}',
@@ -283,7 +280,7 @@ try:
                         cleaned_s3_error = "Error while uploading to S3 or inserting or updating tables - " + cleaned_s3_error
                         print(s3_error)
                         update_input_source_query = f'''
-                                                update vid001.public.video_input_source
+                                                update video.input
                                                 set 
                                                     creation_status = 'FAILED',
                                                     retry_count = retry_count + 1,
@@ -298,7 +295,7 @@ try:
                     cleaned_error = re.sub(r'[^a-zA-Z0-9\s]', '-', error_description)
                     
                     update_input_source_query = f'''
-                                                update vid001.public.video_input_source
+                                                update video.input
                                                 set 
                                                     creation_status = 'FAILED',
                                                     retry_count = retry_count + 1,
@@ -316,7 +313,7 @@ try:
                     reupdate_ids = li[i+1:]
                     if len(reupdate_ids) > 0:
                         update_query = f'''
-                                        update vid001.public.video_input_source
+                                        update video.input
                                         set creation_status = 'NOT_CREATED' 
                                         where id in ('{"','".join(reupdate_ids)}');
                                     '''
@@ -331,7 +328,7 @@ try:
                 cleaned_for_loop_error = "Error Occured while Video Processing in FOR loop - " + cleaned_for_loop_error                      
                 print(cleaned_for_loop_error)
                 update_input_source_query = f'''
-                                                update vid001.public.video_input_source
+                                                update video.input
                                                 set 
                                                     creation_status = 'FAILED',
                                                     retry_count = retry_count + 1,
@@ -344,4 +341,3 @@ try:
                 
 except Exception as e:
     print("Unexpected Error Occured : ", e)
-
